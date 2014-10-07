@@ -18,44 +18,28 @@ echo 'deb http://packages.elasticsearch.org/elasticsearch/1.3/debian stable main
 echo 'deb http://packages.elasticsearch.org/logstash/1.4/debian stable main' >> /etc/apt/sources.list.d/logstash.list
 
 echo -e "$ECHO_PREFIX Update APT packages index"
-apt-get -qq update
+apt-get update
 
 echo -e "$ECHO_PREFIX Update APT system packages"
-apt-get -y -qq upgrade
+apt-get -y upgrade
 
 echo -e "$ECHO_PREFIX Install curl" 
-apt-get -y -qq install curl
+apt-get -y install curl
 
 echo -e "$ECHO_PREFIX Download Sun JDK 8 x64"
-curl -s -L -C - -b "oraclelicense=accept-securebackup-cookie" -O http://download.oracle.com/otn-pub/java/jdk/8u5-b13/jdk-8u5-linux-x64.tar.gz
+curl -L -C - -b "oraclelicense=accept-securebackup-cookie" -O http://download.oracle.com/otn-pub/java/jdk/8u5-b13/jdk-8u5-linux-x64.tar.gz
 
-echo -e "$ECHO_PREFIX Unzip JDK"
+echo -e "$ECHO_PREFIX Install JDK"
 tar xzf jdk-8u5-linux-x64.tar.gz -C /opt
 ln -s /opt/jdk1.8.0_05 /opt/jdk
 rm -f jdk-8u5-linux-x64.tar.gz
 
-echo -e "$ECHO_PREFIX Set as default java"
+echo -e "$ECHO_PREFIX Set as default Java JRE/JDK"
 update-alternatives --install "/usr/bin/java" "java" "/opt/jdk/bin/java" 2000
 update-alternatives --set java /opt/jdk/bin/java
 
 update-alternatives --install "/usr/bin/javac" "javac" "/opt/jdk/bin/javac" 2000
 update-alternatives --set javac /opt/jdk/bin/javac
-
-echo -e "$ECHO_PREFIX Fix libjvm.so not found"
-ln -s /opt/jdk/jre/lib/amd64/server/libjvm.so /usr/lib/libjvm.so
-
-echo -e "$ECHO_PREFIX Install Collectd"
-apt-get -y -qq install collectd
-update-rc.d collectd defaults
-
-echo -e "$ECHO_PREFIX Configure Collectd"
-cp /vagrant/collectd.conf /etc/collectd/
-
-echo -e "$ECHO_PREFIX Add Collectd custom types"
-echo "jmx_memory              value:GAUGE:0:U" >> /usr/share/collectd/types.db
-
-echo -e "$ECHO_PREFIX Restart Collectd"
-/etc/init.d/collectd restart
 
 echo -e "$ECHO_PREFIX Install NGiNX"
 apt-get -y -qq install nginx
@@ -74,9 +58,6 @@ echo -e "$ECHO_PREFIX Configure Kibana"
 cp /vagrant/kibana.config.js /usr/share/nginx/www/kibana/config.js
 
 echo -e "$ECHO_PREFIX Install dashboards"
-cp /vagrant/dashboard.collectd.json /usr/share/nginx/www/kibana/app/dashboards/collectd.json
-cp /vagrant/dashboard.system.json /usr/share/nginx/www/kibana/app/dashboards/system.json
-cp /vagrant/dashboard.jmx.json /usr/share/nginx/www/kibana/app/dashboards/jmx.json
 cp /vagrant/dashboard.market.json /usr/share/nginx/www/kibana/app/dashboards/market.json
 cp /vagrant/dashboard.board.json /usr/share/nginx/www/kibana/app/dashboards/board.json
 
@@ -112,10 +93,7 @@ apt-get -y install logstash
 update-rc.d logstash defaults
 
 echo -e "$ECHO_PREFIX Configure Logstash"
-cp /vagrant/logstash.initd.sh /etc/init.d/logstash
 cp /vagrant/logstash.conf /etc/logstash/conf.d
-cp /vagrant/GeoLiteCity.dat /etc/logstash/conf.d
-cp -r /vagrant/patterns /etc/logstash/conf.d
 
 echo -e "$ECHO_PREFIX Start Logstash"
 /etc/init.d/logstash restart
@@ -142,6 +120,5 @@ echo -e "$ECHO_PREFIX * http://localhost:19200/_plugin/paramedic"
 echo -e "$ECHO_PREFIX"
 echo -e "$ECHO_PREFIX Kibana is available at:"
 echo -e "$ECHO_PREFIX * http://localhost:10080/kibana"
-echo -e "$ECHO_PREFIX * http://localhost:10080/kibana/index.html#/dashboard/file/collectd.json"
-echo -e "$ECHO_PREFIX * http://localhost:10080/kibana/index.html#/dashboard/file/system.json"
-echo -e "$ECHO_PREFIX * http://localhost:10080/kibana/index.html#/dashboard/file/jmx.json"
+echo -e "$ECHO_PREFIX * http://localhost:10080/kibana/index.html#/dashboard/file/market.json"
+echo -e "$ECHO_PREFIX * http://localhost:10080/kibana/index.html#/dashboard/file/board.json"
