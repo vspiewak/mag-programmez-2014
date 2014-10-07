@@ -1,7 +1,7 @@
-elk-programmez-2014
+mag-programmez-2014
 ===================
 
-Analyse des logs applicatifs avec ELK pour le magazine Programmez.
+Analyse des logs applicatifs avec ELK - Dossier DevOps - Programmez 2014
 
 Vous devez installer les programmes suivant:
 * Virtual Box
