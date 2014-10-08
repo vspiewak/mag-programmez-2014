@@ -1,10 +1,12 @@
+# Vagrant Bootstrap script
+#
 #!/usr/bin/env bash
 
 export DEBIAN_FRONTEND=noninteractive
 
-ECHO_PREFIX="\e[1m\e[97m[\e[34mVagrant\e[97m]\e[0m"
+ECHO_PREFIX="\e[1m\e[33m[\e[34mVagrant\e[33m]\e[0m"
 
-echo -e "$ECHO_PREFIX Will work in /tmp"
+echo -e "$ECHO_PREFIX Will work only in /tmp"
 cd /tmp
 
 echo -e "$ECHO_PREFIX Set Europe/Paris as default timezone"
@@ -20,14 +22,14 @@ echo 'deb http://packages.elasticsearch.org/logstash/1.4/debian stable main' >> 
 echo -e "$ECHO_PREFIX Update APT packages index"
 apt-get update
 
-echo -e "$ECHO_PREFIX Update APT system packages"
-apt-get -y upgrade
+#echo -e "$ECHO_PREFIX Update APT system packages"
+#apt-get -y upgrade
 
 echo -e "$ECHO_PREFIX Install curl" 
 apt-get -y install curl
 
-echo -e "$ECHO_PREFIX Download Sun JDK 8 x64"
-curl -L -C - -b "oraclelicense=accept-securebackup-cookie" -O http://download.oracle.com/otn-pub/java/jdk/8u5-b13/jdk-8u5-linux-x64.tar.gz
+echo -e "$ECHO_PREFIX Download Sun JDK 8 64bits (take some time...)"
+curl -S -L -C - -b "oraclelicense=accept-securebackup-cookie" -O http://download.oracle.com/otn-pub/java/jdk/8u5-b13/jdk-8u5-linux-x64.tar.gz
 
 echo -e "$ECHO_PREFIX Install JDK"
 tar xzf jdk-8u5-linux-x64.tar.gz -C /opt
@@ -42,7 +44,7 @@ update-alternatives --install "/usr/bin/javac" "javac" "/opt/jdk/bin/javac" 2000
 update-alternatives --set javac /opt/jdk/bin/javac
 
 echo -e "$ECHO_PREFIX Install NGiNX"
-apt-get -y -qq install nginx
+apt-get -y install nginx
 update-rc.d nginx defaults
 
 echo -e "$ECHO_PREFIX Restart NGiNX"
@@ -58,8 +60,7 @@ echo -e "$ECHO_PREFIX Configure Kibana"
 cp /vagrant/kibana.config.js /usr/share/nginx/www/kibana/config.js
 
 echo -e "$ECHO_PREFIX Install dashboards"
-cp /vagrant/dashboard.market.json /usr/share/nginx/www/kibana/app/dashboards/market.json
-cp /vagrant/dashboard.board.json /usr/share/nginx/www/kibana/app/dashboards/board.json
+cp /vagrant/dashboard.json /usr/share/nginx/www/kibana/app/dashboards/default.json
 
 echo -e "$ECHO_PREFIX Install Elasticsearch"
 apt-get -y -qq install elasticsearch
@@ -120,5 +121,4 @@ echo -e "$ECHO_PREFIX * http://localhost:19200/_plugin/paramedic"
 echo -e "$ECHO_PREFIX"
 echo -e "$ECHO_PREFIX Kibana is available at:"
 echo -e "$ECHO_PREFIX * http://localhost:10080/kibana"
-echo -e "$ECHO_PREFIX * http://localhost:10080/kibana/index.html#/dashboard/file/market.json"
-echo -e "$ECHO_PREFIX * http://localhost:10080/kibana/index.html#/dashboard/file/board.json"
+echo -e "$ECHO_PREFIX * http://localhost:10080/kibana/index.html#/dashboard/file/default.json"
